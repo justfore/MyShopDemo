@@ -4,18 +4,21 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 using MyShop.DataAccess.InMemory;
 
 namespace MyShop.WebUI.Controllers
 {
    
-    public class ProductManagementController : Controller
+    public class ProductManagerController : Controller
     {
         ProductRepository context;
+        ProductCategoryRepository productCategories;
 
-        public ProductManagementController()
+        public ProductManagerController()
         {
             context = new ProductRepository();
+            productCategories = new ProductCategoryRepository();
         }
 
         // GET: ProductManagement
@@ -27,8 +30,10 @@ namespace MyShop.WebUI.Controllers
 
         public ActionResult Create()
         {
-            Product product = new Product();
-            return View(product);
+            ProductManagerViewModel viewModel = new ProductManagerViewModel();
+            viewModel.Product = new Product();
+            viewModel.ProductCategories = productCategories.Collection();
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -51,7 +56,10 @@ namespace MyShop.WebUI.Controllers
                 return HttpNotFound();
             else
             {
-                return View(product);
+                ProductManagerViewModel viewModel = new ProductManagerViewModel();
+                viewModel.Product = product;
+                viewModel.ProductCategories = productCategories.Collection();
+                return View(viewModel);
             }
         }
 
@@ -59,11 +67,11 @@ namespace MyShop.WebUI.Controllers
         public ActionResult Edit(Product product, string Id)
         {
             Product productToEdit = context.Find(Id);
-            if (productToEdit==null)
+            if (productToEdit == null)
                 return HttpNotFound();
             else
-            {   
-                if(!ModelState.IsValid)
+            {
+                if (!ModelState.IsValid)
                 {
                     return View(product);
                 }
